@@ -7,35 +7,56 @@ import { ThemedText } from '@/components/themed-text';
 import { ThemedView } from '@/components/themed-view';
 import { useNotifications } from '@/hooks/use-notifications';
 
-const API_BASE_URL = process.env.EXPO_PUBLIC_API_BASE_URL;
+const GEMINI_MODEL = 'gemini-2.5-flash';
+const GEMINI_ENDPOINT = `https://generativelanguage.googleapis.com/v1beta/models/${GEMINI_MODEL}:generateContent`;
 const AUDIO_DURATION_MS = 30_000;
 
-async function summarizeWithBackend(audioBase64: string, mimeType: string) {
-  if (!API_BASE_URL) {
-    throw new Error('Missing EXPO_PUBLIC_API_BASE_URL');
+async function summarizeWithGemini(audioBase64: string, mimeType: string) {
+  const apiKey = process.env.EXPO_PUBLIC_GEMINI_API_KEY;
+  if (!apiKey) {
+    throw new Error('Missing EXPO_PUBLIC_GEMINI_API_KEY');
   }
 
-  const response = await fetch(`${API_BASE_URL}/api/ai/summarize`, {
+  const response = await fetch(GEMINI_ENDPOINT, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
+      'x-goog-api-key': apiKey,
     },
     body: JSON.stringify({
-      audioBase64,
-      mimeType,
+      contents: [
+        {
+          role: 'user',
+          parts: [
+            {
+              text:
+                'Rewrite this audio as a brief first-person transcript, as if the speaker is talking. Focus on health issues and the main contributing factors mentioned. Keep it to 1-2 sentences, do not invent details, and if it is not about health respond with exactly "NO_HEALTH".',
+            },
+            {
+              inlineData: {
+                mimeType,
+                data: audioBase64,
+              },
+            },
+          ],
+        },
+      ],
     }),
   });
 
   if (!response.ok) {
     const errorText = await response.text();
-    throw new Error(`Summarize error ${response.status}: ${errorText}`);
+    throw new Error(`Gemini error ${response.status}: ${errorText}`);
   }
 
   const data = await response.json();
-  const summary = String(data?.summary ?? '').trim();
+  const summary = data?.candidates?.[0]?.content?.parts
+    ?.map((part: { text?: string }) => part.text ?? '')
+    .join('')
+    .trim();
 
   if (!summary) {
-    throw new Error('Summarizer returned an empty summary.');
+    throw new Error('Gemini returned an empty summary.');
   }
 
   return summary;
@@ -93,7 +114,7 @@ export default function HomeScreen() {
 
       const audioBase64 = await new File(uri).base64();
 
-      const summary = await summarizeWithBackend(audioBase64, mimeType ?? 'audio/mp4');
+      const summary = await summarizeWithGemini(audioBase64, mimeType ?? 'audio/mp4');
       if (summary !== 'NO_HEALTH') {
         addNotification(summary);
       }
