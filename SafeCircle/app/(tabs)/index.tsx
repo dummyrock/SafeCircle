@@ -2,10 +2,15 @@ import { Alert, Pressable, StyleSheet } from 'react-native';
 
 import { ThemedText } from '@/components/themed-text';
 import { ThemedView } from '@/components/themed-view';
+import { useNotifications } from '@/hooks/use-notifications';
 
 export default function HomeScreen() {
+  const { addNotification } = useNotifications();
+
   const showPopup = () => {
-    Alert.alert('SafeCircle', 'This is a test popup on your phone.');
+    const message = 'This is a test popup.';
+    addNotification(message);
+    Alert.alert('SafeCircle', message);
   };
 
   return (
