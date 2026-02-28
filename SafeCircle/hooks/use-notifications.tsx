@@ -1,4 +1,7 @@
-import React, { createContext, useCallback, useContext, useMemo, useState } from 'react';
+import React, { createContext, useCallback, useContext, useEffect, useMemo, useState } from 'react';
+import { addDoc, collection, limit, onSnapshot, orderBy, query, serverTimestamp } from 'firebase/firestore';
+
+import { db } from '@/lib/firebase';
 
 export type NotificationItem = {
   id: string;
@@ -18,14 +21,42 @@ export function NotificationsProvider({ children }: { children: React.ReactNode 
   const [notifications, setNotifications] = useState<NotificationItem[]>([]);
 
   const addNotification = useCallback((message: string) => {
-    const now = new Date();
-    const id = `${now.getTime()}-${Math.random().toString(36).slice(2, 8)}`;
-    const time = now.toLocaleTimeString();
-    setNotifications((prev) => [{ id, message, time }, ...prev]);
+    addDoc(collection(db, 'notifications'), {
+      message,
+      createdAt: serverTimestamp(),
+    }).catch((error) => {
+      console.warn('Failed to send notification:', error);
+    });
   }, []);
 
   const clearNotifications = useCallback(() => {
     setNotifications([]);
+  }, []);
+
+  useEffect(() => {
+    const notificationsRef = collection(db, 'notifications');
+    const notificationsQuery = query(notificationsRef, orderBy('createdAt', 'desc'), limit(50));
+
+    const unsubscribe = onSnapshot(
+      notificationsQuery,
+      (snapshot) => {
+        const items = snapshot.docs.map((doc) => {
+          const data = doc.data() as { message?: string; createdAt?: { toDate?: () => Date } };
+          const createdAt = data.createdAt?.toDate?.() ?? new Date();
+          return {
+            id: doc.id,
+            message: data.message ?? 'New alert',
+            time: createdAt.toLocaleTimeString(),
+          };
+        });
+        setNotifications(items);
+      },
+      (error) => {
+        console.warn('Failed to load notifications:', error);
+      },
+    );
+
+    return () => unsubscribe();
   }, []);
 
   const value = useMemo(
