@@ -28,7 +28,10 @@ async function summarizeWithGemini(audioBase64: string, mimeType: string) {
         {
           role: 'user',
           parts: [
-            { text: 'Summarize this help audio into a short notification.' },
+            {
+              text:
+                'Rewrite this audio as a brief first-person transcript, as if the speaker is talking. Focus on health issues and the main contributing factors mentioned. Keep it to 1-2 sentences, do not invent details, and if it is not about health respond with exactly "NO_HEALTH".',
+            },
             {
               inlineData: {
                 mimeType,
@@ -112,7 +115,9 @@ export default function HomeScreen() {
       const audioBase64 = await new File(uri).base64();
 
       const summary = await summarizeWithGemini(audioBase64, mimeType ?? 'audio/mp4');
-      addNotification(summary);
+      if (summary !== 'NO_HEALTH') {
+        addNotification(summary);
+      }
     } catch (error) {
       const message =
         error instanceof Error ? error.message : 'Unknown error while summarizing audio.';
