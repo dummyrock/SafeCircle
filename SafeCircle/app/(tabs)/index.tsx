@@ -1,5 +1,5 @@
 import { Audio } from 'expo-av';
-import * as FileSystem from 'expo-file-system';
+import { File } from 'expo-file-system';
 import { useEffect, useRef, useState } from 'react';
 import { Alert, Platform, Pressable, StyleSheet } from 'react-native';
 
@@ -30,8 +30,8 @@ async function summarizeWithGemini(audioBase64: string, mimeType: string) {
           parts: [
             { text: 'Summarize this help audio into a short notification.' },
             {
-              inline_data: {
-                mime_type: mimeType,
+              inlineData: {
+                mimeType,
                 data: audioBase64,
               },
             },
@@ -109,9 +109,7 @@ export default function HomeScreen() {
         default: 'audio/mp4',
       });
 
-      const audioBase64 = await FileSystem.readAsStringAsync(uri, {
-        encoding: FileSystem.EncodingType.Base64,
-      });
+      const audioBase64 = await new File(uri).base64();
 
       const summary = await summarizeWithGemini(audioBase64, mimeType ?? 'audio/mp4');
       addNotification(summary);
@@ -125,7 +123,12 @@ export default function HomeScreen() {
   };
 
   const handleHelpPress = async () => {
-    if (isRecording || isProcessing) {
+    if (isProcessing) {
+      return;
+    }
+
+    if (isRecording) {
+      await stopAndSummarize();
       return;
     }
 
@@ -162,7 +165,7 @@ export default function HomeScreen() {
     }
   };
 
-  const isDisabled = isRecording || isProcessing;
+  const isDisabled = isProcessing;
 
   return (
     <ThemedView style={styles.container}>
@@ -177,7 +180,7 @@ export default function HomeScreen() {
           pressed && !isDisabled && styles.popupButtonPressed,
         ]}>
         <ThemedText type="title" style={styles.popupButtonText}>
-          HELP
+          {isRecording ? 'STOP' : isProcessing ? 'PROCESSING' : 'HELP'}
         </ThemedText>
       </Pressable>
     </ThemedView>
