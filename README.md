@@ -6,6 +6,12 @@ This document outlines the core features, technical integration, and user workfl
 
 ---
 
+### Inspiration
+
+The idea for SafeCircle was born out of a real-life emergency. One of our team members was injured in an accident involving a homemade potato cannon and struggled to quickly call for help due to the pain. We realized there was a critical need for an application that makes reaching out for assistance as effortless and immediate as possible, without the friction of dialing numbers or explaining your location while in distress.
+
+---
+
 ### Core Features
 
 **1. Emergency Help Button**
@@ -63,4 +69,22 @@ The SafeCircle backend is responsible for storing user data, logging events, pro
 
 ---
 
-Would you like me to format this inside a code block so you can copy the raw Markdown syntax directly?
+### Challenges We Faced
+
+* **Platform Transition:** Shifting our mindset and development approach from building traditional web applications (which we were accustomed to) to developing a mobile application.
+* **Audio Integration:** Understanding how to properly implement background microphone recording features and routing that audio to an AI service for accurate translation and summarization.
+* **Security & Environment Variables:** Navigating the complexities of using external APIs while ensuring that all API keys were securely stored and hidden within the project to prevent credential leaks and unauthorized access.
+
+---
+
+### What We Learned
+
+* **AI-Assisted Development:** How to utilize AI effectively for efficient coding, debugging, and problem-solving throughout the development lifecycle.
+* **Mobile Development:** The end-to-end process of building a fully functional mobile application utilizing TypeScript.
+* **Geolocation Integration:** Implementing dynamic map features to successfully capture, display, and share a user's live location.
+* **API Management:** A deeper understanding of API architecture, integration, and the best practices for managing keys securely.
+* **Speech-to-Text Capabilities:** Successfully incorporating voice-to-text technologies to summarize audio in real-time.
+
+---
+
+Would you like me to wrap this entire text inside a raw Markdown code block so you can copy and paste it into GitHub or your code editor in one click?
