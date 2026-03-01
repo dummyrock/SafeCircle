@@ -86,5 +86,3 @@ The SafeCircle backend is responsible for storing user data, logging events, pro
 * **Speech-to-Text Capabilities:** Successfully incorporating voice-to-text technologies to summarize audio in real-time.
 
 ---
-
-Would you like me to wrap this entire text inside a raw Markdown code block so you can copy and paste it into GitHub or your code editor in one click?
