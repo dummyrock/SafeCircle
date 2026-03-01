@@ -1,129 +1,61 @@
-# SafeCircle
-SafeCircle – Personal Safety App
+## SafeCircle: Personal Safety Application
 
-SafeCircle is a personal safety application designed to give users instant access to help in emergency situations. The app combines location tracking, real-time alerts, and ambient noise detection to provide an enhanced safety network for its users.
+> **Overview:** SafeCircle is a comprehensive personal safety application designed to provide instant access to help during emergencies. By seamlessly combining precise location tracking, real-time alerting, and ambient noise detection, SafeCircle creates a robust and reliable safety network for its users.
 
-This README explains in detail how each feature works, the user workflow, the technical setup, and potential future enhancements.
+### Core Features
 
-Features
-1. Help Button
+1. Emergency Help Button**
+The core functionality of SafeCircle allows users to instantly signal for help when they feel unsafe or encounter an emergency.
 
-Description: The core feature of the app is the Help button. When a user feels unsafe or encounters an emergency, pressing this button immediately triggers an alert.
+* **Frontend:** Dispatches a request containing the user ID, timestamp, and location coordinates.
+* **Backend:** Logs the event and instantly pushes notifications (via SMS, email, or push) to predefined emergency contacts or authorities.
+* **User Experience (UX):** Displays a clear "Help request sent" visual confirmation and offers a brief cancellation window to prevent accidental alerts.
 
-How it works:
+2. Interactive Map Selector**
+SafeCircle utilizes modern mapping libraries (such as Google Maps or Leaflet) to ensure pinpoint accuracy during an emergency.
 
-Frontend: When the button is pressed, the app sends a POST request to the backend API with the user's current location, user ID, and a timestamp.
+* **Location Retrieval:** Automatically fetches the device’s geolocation the moment the Help workflow is activated.
+* **Manual Adjustment:** Users can drag a pin or tap the map to visually confirm and fine-tune their exact position.
+* **Data Handling:** Captures precise latitude and longitude coordinates to share with responders and store in historical logs.
 
-Backend: Receives the request, logs it, and pushes notifications to predefined contacts (like friends, family, or local authorities).
+3. Ambient Noise Detection**
+To provide critical context to emergency contacts, the application securely captures surrounding audio during a distress event.
 
-User Experience:
+* **Activation:** Background audio recording begins automatically as soon as the Help button is pressed.
+* **Transmission:** Short audio clips are bundled into the alert payload and transmitted to the backend for verification.
+* **User Experience (UX):** Users are transparently notified that noise detection is active. Recording ceases automatically once the alert is completed or canceled.
 
-Pressing the button gives instant visual feedback (“Help request sent”).
 
-Users can optionally cancel the request within a few seconds to prevent accidental alerts.
 
-2. Map Location Selector
+Technical Architecture
 
-Description: SafeCircle integrates a map view allowing users to confirm or manually select their exact location.
+Frontend Components
+--------------------
 
-How it works:
+* **HelpButton:** Initiates the emergency sequence and triggers background audio recording.
+* **MapSelector:** Renders the map interface and captures accurate geospatial data.
+* **AudioCapture:** Manages background microphone access and securely packages sound clips.
+* **NotificationFeedback:** Delivers real-time system statuses, confirmations, and alerts to the UI.
 
-The map is rendered using a mapping library (like Google Maps or Leaflet).
+Backend API Endpoints
+---------------------
 
-When opening the Help button workflow, the app retrieves the device’s geolocation.
+The SafeCircle backend is responsible for storing user data, logging events, processing audio, and routing emergency communications.
 
-Users can drag a pin or tap on the map to fine-tune their location, ensuring accurate positioning.
+| Endpoint | Method | Description |
+| --- | --- | --- |
+| `/help` | `POST` | Triggers a new Help request and initiates the emergency alert workflow. |
+| `/locations/:userId` | `GET` | Fetches a historical log of previous emergency alerts and location data. |
+| `/audio` | `POST` | Receives and safely stores ambient noise recordings linked to an active alert. |
 
-Technical Details:
 
-The frontend captures latitude and longitude coordinates.
+User Workflow: Step-by-Step
+---------------------------
 
-Coordinates are sent along with the Help request to the backend.
-
-Backend stores this data for alert notifications and historical tracking.
-
-3. Noise Detection
-
-Description: In addition to location, SafeCircle captures ambient noise if the user is in distress.
-
-How it works:
-
-When Help is triggered, the app begins recording short audio clips in the background.
-
-These audio clips are sent to the backend as part of the alert payload.
-
-Backend can process or store the audio for verification of real emergencies.
-
-User Experience:
-
-Recording starts automatically with the Help button press.
-
-Users are notified that noise detection is active.
-
-Recording stops once the alert is completed or canceled.
-
-4. Backend Integration
-
-SafeCircle Backend manages:
-
-Storing user data and emergency logs.
-
-Pushing real-time alerts to contacts via SMS, email, or push notifications.
-
-Processing audio data to flag possible emergencies.
-
-Logging geolocation and timestamps for each Help event.
-
-API Endpoints:
-
-POST /help – Trigger a Help request.
-
-GET /locations/:userId – Fetch historical alerts.
-
-POST /audio – Upload noise recordings during emergencies.
-
-5. Frontend Integration
-
-Components:
-
-HelpButton – triggers help and audio recording.
-
-MapSelector – displays the map and captures location.
-
-AudioCapture – records ambient sounds during emergencies.
-
-NotificationFeedback – shows alerts, confirmations, and status updates to users.
-
-Flow:
-
-User presses Help button.
-
-App retrieves current location and opens map for optional adjustment.
-
-Ambient noise recording begins.
-
-App sends location + audio + user ID to backend.
-
-Backend sends notifications to emergency contacts.
-
-User receives confirmation that help is on the way.
-
-Step-by-Step User Tutorial
-
-Open the SafeCircle app.
-
-Locate the Help button on the main screen.
-
-Tap Help if you feel unsafe.
-
-Confirm your current location on the map. Drag the pin if necessary.
-
-The app will start ambient audio recording automatically.
-
-The app sends your location, timestamp, and audio clip to the backend.
-
-Emergency contacts receive an alert with your exact location and optional audio.
-
-A confirmation message appears on your screen: “Help request sent successfully.”
-
-The app logs your alert for future reference.
+1. Open the SafeCircle application and locate the **Help** button on the main screen.
+2. Tap **Help** immediately if you feel unsafe or experience an emergency.
+3. Review your auto-detected location on the map interface and drag the pin to adjust it if necessary.
+4. Allow the app to automatically begin recording ambient noise in the background.
+5. The system silently transmits your location, timestamp, and audio clip to the backend servers.
+6. Predefined emergency contacts instantly receive an actionable alert containing your precise details.
+7. Receive a final on-screen confirmation reading: *"Help request sent successfully,"* while the app logs the event for future reference.
